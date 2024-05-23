@@ -12,10 +12,13 @@ protocol DetailViewControllerProtocol: AnyObject {
     func displayWordDetails(_ wordElement: WordElement)
     func displayError(_ error: String)
     func showWordDetail(word: String)
+    
 }
 
 class DetailViewController: UIViewController {
     var presenter: DetailPresenterProtocol?
+    private var selectedPartOfSpeech: String?
+    private var wordDetails: WordElement?
 
     private let wordLabel: UILabel = {
         let label = UILabel()
@@ -123,24 +126,90 @@ class DetailViewController: UIViewController {
                 meaningsTextView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
             ])
     }
-    
     private func createPartOfSpeechButtons(for partsOfSpeech: [String]) {
         partOfSpeechStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
         for part in partsOfSpeech {
             let button = UIButton(type: .system)
-            button.setTitle(part, for: .normal)
+            button.setTitle(part.capitalized, for: .normal)
             button.backgroundColor = .systemGray5
             button.layer.cornerRadius = 15
             button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
             button.addTarget(self, action: #selector(partOfSpeechButtonTapped(_:)), for: .touchUpInside)
             partOfSpeechStackView.addArrangedSubview(button)
         }
+        
+        // Add clear filter button
+            let clearButton = UIButton(type: .system)
+            clearButton.setTitle("✕", for: .normal)
+            clearButton.backgroundColor = .systemRed
+            clearButton.layer.cornerRadius = 15
+            clearButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+            clearButton.addTarget(self, action: #selector(clearFilterButtonTapped), for: .touchUpInside)
+            partOfSpeechStackView.addArrangedSubview(clearButton)
+    }
+    
+    @objc private func clearFilterButtonTapped() {
+        selectedPartOfSpeech = nil
+        displayFullDefinitions()
+    }
+    private func displayFullDefinitions() {
+        guard let word = wordDetails else { return }
+        
+        let attributedText = NSMutableAttributedString()
+
+        word.meanings?.forEach { meaning in
+            guard let partOfSpeech = meaning.partOfSpeech?.capitalized else { return }
+            
+            meaning.definitions?.enumerated().forEach { (index, definition) in
+                let partOfSpeechText = NSAttributedString(string: "\(index + 1). \(partOfSpeech)\n", attributes: [
+                    .font: UIFont.italicSystemFont(ofSize: 16),
+                    .foregroundColor: UIColor.black
+                ])
+                
+                let definitionText = NSAttributedString(string: "\(definition.definition ?? "")\n\n", attributes: [
+                    .font: UIFont.systemFont(ofSize: 16),
+                    .foregroundColor: UIColor.darkGray
+                ])
+                
+                attributedText.append(partOfSpeechText)
+                attributedText.append(definitionText)
+            }
+        }
+
+        meaningsTextView.attributedText = attributedText
     }
 
     @objc private func partOfSpeechButtonTapped(_ sender: UIButton) {
         guard let title = sender.title(for: .normal) else { return }
-        // Tıklanan butona göre ilgili işlemi yap
+        selectedPartOfSpeech = title
+        filterDefinitionsByPartOfSpeech()
+    }
+    
+    private func filterDefinitionsByPartOfSpeech() {
+        guard let word = wordDetails, let selectedPartOfSpeech = selectedPartOfSpeech else { return }
+        let attributedText = NSMutableAttributedString()
+
+        word.meanings?.forEach { meaning in
+            guard let partOfSpeech = meaning.partOfSpeech?.capitalized, partOfSpeech == selectedPartOfSpeech else { return }
+            
+            meaning.definitions?.enumerated().forEach { (index, definition) in
+                let partOfSpeechText = NSAttributedString(string: "\(index + 1). \(partOfSpeech)\n", attributes: [
+                    .font: UIFont.italicSystemFont(ofSize: 16),
+                    .foregroundColor: UIColor.systemBlue
+                ])
+                
+                let definitionText = NSAttributedString(string: "\(definition.definition ?? "")\n\n", attributes: [
+                    .font: UIFont.systemFont(ofSize: 16),
+                    .foregroundColor: UIColor.darkGray
+                ])
+                
+                attributedText.append(partOfSpeechText)
+                attributedText.append(definitionText)
+            }
+        }
+
+        meaningsTextView.attributedText = attributedText
     }
 
     func showError(_ error: String) {
@@ -154,22 +223,26 @@ extension DetailViewController: DetailViewControllerProtocol {
     }
     
     func displayWordDetails(_ word: WordElement) {
-        wordLabel.text = word.word
+        print("DetailViewController: displayWordDetails")
+        wordLabel.text = word.word?.capitalized
         phoneticLabel.text = word.phonetic
         
+        // Clear existing partOfSpeech buttons
+        partOfSpeechStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        
+        // Store the word details for later use
+        wordDetails = word
+
+        // Create new partOfSpeech buttons
         if let meanings = word.meanings {
-            let partsOfSpeech = meanings.compactMap { $0.partOfSpeech }
+            let partsOfSpeech = meanings.compactMap { $0.partOfSpeech?.capitalized }
             createPartOfSpeechButtons(for: partsOfSpeech)
         }
         
-        let definitionsText = word.meanings?.compactMap { meaning in
-            guard let partOfSpeech = meaning.partOfSpeech else { return nil }
-            let definitions = meaning.definitions?.compactMap { $0.definition }.joined(separator: "\n")
-            return "\(partOfSpeech): \(definitions ?? "")"
-        }.joined(separator: "\n\n")
-        
-        meaningsTextView.text = definitionsText
+        // Display all definitions initially
+        displayFullDefinitions()
     }
+
     
     func showWordDetail(word: String) {
         wordLabel.text = word

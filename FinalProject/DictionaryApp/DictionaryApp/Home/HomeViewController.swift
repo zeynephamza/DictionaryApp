@@ -1,7 +1,7 @@
 import UIKit
 import DictionaryAPI
 
-protocol HomeViewControllerProtocol: AnyObject{
+protocol HomeViewControllerProtocol: AnyObject {
     func showWordDefinition(_ wordData: WordElement)
     func showError(_ error: String)
 }
@@ -9,13 +9,13 @@ protocol HomeViewControllerProtocol: AnyObject{
 class HomeViewController: UIViewController {
     var presenter: HomePresenterProtocol?
     var historyPresenter: HistoryCellPresenterProtocol = HistoryCellPresenter()
-
+    
     private let searchBar: UISearchBar = {
         let searchBar = UISearchBar()
         searchBar.placeholder = "Search"
         return searchBar
     }()
-
+    
     private let recentLabel: UILabel = {
         let label = UILabel()
         label.text = "Recent search"
@@ -38,49 +38,58 @@ class HomeViewController: UIViewController {
         let tableView = UITableView()
         return tableView
     }()
-
+    
+    private var searchButtonBottomConstraint: NSLayoutConstraint!
+    private var searchButtonBottomConstraintWithKeyboard: NSLayoutConstraint!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         view.backgroundColor = .white
         searchBar.delegate = self
+        
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
+        
         historyTableView.delegate = self
         historyTableView.dataSource = self
         historyTableView.register(UINib(nibName: "HistoryTableCell", bundle: nil), forCellReuseIdentifier: "HistoryTableCell")
-
+        
         setupHomeUI()
         historyPresenter.loadSearchHistory()
     }
-
+    
     private func setupHomeUI() {
         view.addSubview(searchBar)
         view.addSubview(historyTableView)
         view.addSubview(searchButton)
         view.addSubview(recentLabel)
-
+        
         searchBar.translatesAutoresizingMaskIntoConstraints = false
         searchButton.translatesAutoresizingMaskIntoConstraints = false
         historyTableView.translatesAutoresizingMaskIntoConstraints = false
         recentLabel.translatesAutoresizingMaskIntoConstraints = false
-
+        
+        searchButtonBottomConstraint = searchButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+        
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             searchBar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-
+            
+            recentLabel.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 8),
+            recentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            recentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
             historyTableView.topAnchor.constraint(equalTo: recentLabel.bottomAnchor, constant: 8),
             historyTableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             historyTableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             historyTableView.bottomAnchor.constraint(equalTo: searchButton.topAnchor, constant: -20),
-
+            
             searchButton.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             searchButton.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             searchButton.heightAnchor.constraint(equalToConstant: 60),
-            searchButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20),
-            
-            recentLabel.topAnchor.constraint(equalTo: searchBar.bottomAnchor, constant: 8),
-            recentLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            recentLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16)
-
+            searchButtonBottomConstraint
         ])
     }
     
@@ -93,50 +102,73 @@ class HomeViewController: UIViewController {
         presenter?.searchWord(lowercasedText) { [weak self] wordElement in
             self?.presenter?.navigateToDetail(with: lowercasedText, wordElement: wordElement)
         }
-        
     }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
+        
+        let keyboardHeight = self.view.convert(keyboardFrame, from: nil).height
+        
+        searchButtonBottomConstraint.isActive = false
+        searchButtonBottomConstraintWithKeyboard = searchButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -keyboardHeight)
+        NSLayoutConstraint.activate([searchButtonBottomConstraintWithKeyboard])
+        
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        guard let searchButtonBottomConstraintWithKeyboard = searchButtonBottomConstraintWithKeyboard else {
+            // If searchButtonBottomConstraintWithKeyboard is nil, return early to avoid the fatal error
+            return
+        }
 
+        searchButtonBottomConstraintWithKeyboard.isActive = false
+        searchButtonBottomConstraint.isActive = true
+        
+        UIView.animate(withDuration: 0.3) {
+            self.view.layoutIfNeeded()
+        }
+    }
+    
     private func addToSearchHistory(_ searchText: String) {
         historyPresenter.addRecentSearch(searchText)
     }
-
+    
     private func clearSearchHistory() {
         historyPresenter.clearSearchHistory()
         historyTableView.reloadData()
     }
-    
-    
-    
 }
 
 extension HomeViewController: HomeViewControllerProtocol {
     func showWordDefinition(_ wordData: WordElement) {
-        // Kelime tanımını göster
+        // Show word definition
     }
-
+    
     func showError(_ error: String) {
-        // Hata mesajını göster
+        // Show error message
     }
 }
-
 
 extension HomeViewController: UITableViewDataSource, UITableViewDelegate {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return historyPresenter.numberOfRecentSearches()
     }
-
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "HistoryTableCell", for: indexPath) as! HistoryTableCell
         let recentSearch = historyPresenter.recentSearch(at: indexPath.row)
         historyPresenter.configureCell(cell, with: recentSearch)
         return cell
     }
-
+    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let recentSearch = historyPresenter.recentSearch(at: indexPath.row)
         searchBar.text = recentSearch
         searchButtonTapped()
-        //presenter?.navigateToDetail(with: recentSearch, wordElement: WordElement)
     }
 }
 
