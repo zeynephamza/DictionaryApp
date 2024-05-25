@@ -86,36 +86,27 @@ final class DictionaryAppUITests: XCTestCase {
         app.launch()
         
         app.searchFields["Search"].tap()
-        app.typeText("swift")
+        app.typeText("home")
+
         app.buttons.containing(.staticText, identifier:"Search").element.tap()
         
-        let elementsQuery = app.scrollViews.otherElements
-        let nounButton = elementsQuery.buttons["Noun"]
+        let scrollViewsQuery = app.scrollViews
+        let nounButton = scrollViewsQuery.otherElements.containing(.button, identifier:"✕").children(matching: .button).matching(identifier: "Noun").element(boundBy: 0)
         nounButton.tap()
         
-        let adjectiveButton = elementsQuery.buttons["Adjective"]
-        adjectiveButton.tap()
-        
-        let adverbButton = elementsQuery.buttons["Adverb"]
-        adverbButton.tap()
-        elementsQuery.buttons["Noun, Adjective, Adverb"].tap()
-        adjectiveButton.tap()
-        adjectiveButton.tap()
-        adverbButton.tap()
-        adverbButton.tap()
-        adverbButton.tap()
-        adjectiveButton.tap()
+        let elementsQuery = scrollViewsQuery.otherElements
+        let verbButton = elementsQuery.buttons["Verb"]
+        verbButton.tap()
+        elementsQuery.buttons["Adjective"].tap()
+        elementsQuery.buttons["Noun, Verb, Adjective"].tap()
+        elementsQuery.buttons["Noun, Verb"].tap()
         nounButton.tap()
-        elementsQuery.buttons["Adverb, Adjective, Noun"].tap()
-        adjectiveButton.tap()
+        verbButton.tap()
+        elementsQuery.buttons["✕"].tap()
+        app.buttons["arrow.backward"].tap()
+ 
         
-        let button = elementsQuery.buttons["✕"]
-        button.tap()
-        nounButton.tap()
-        button.tap()
-        adverbButton.tap()
-        button.tap()
-                    
+                
         // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
     
