@@ -28,10 +28,9 @@ class HomeRouter: HomeRouterProtocol {
     
     
     func navigateToDetail(from view: HomeViewControllerProtocol, with word: String, wordElement: WordElement) {
-        print("HomeRouter: Creating detail module with word: \(word)") // Debug
-
+        
         let detailVC = DetailRouter.createModule(with: word, wordElement: wordElement)
-        detailVC.modalPresentationStyle = .fullScreen
+        detailVC.modalPresentationStyle = .overFullScreen
         if let viewController = view as? UIViewController {
             viewController.present(detailVC, animated: true, completion: nil)
         }

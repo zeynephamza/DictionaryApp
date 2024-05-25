@@ -7,6 +7,8 @@ protocol HomeViewControllerProtocol: AnyObject {
 }
 
 class HomeViewController: UIViewController {
+    
+    //home screen setup
     var presenter: HomePresenterProtocol?
     var historyPresenter: HistoryCellPresenterProtocol = HistoryCellPresenter()
     
@@ -25,7 +27,7 @@ class HomeViewController: UIViewController {
         return label
     }()
     
-    private let searchButton: UIButton = {
+    private lazy var searchButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Search", for: .normal)
         button.setTitleColor(.white, for: .normal)
@@ -33,6 +35,7 @@ class HomeViewController: UIViewController {
         button.addTarget(self, action: #selector(searchButtonTapped), for: .touchUpInside)
         return button
     }()
+
     
     private let historyTableView: UITableView = {
         let tableView = UITableView()
@@ -56,7 +59,7 @@ class HomeViewController: UIViewController {
         historyTableView.register(UINib(nibName: "HistoryTableCell", bundle: nil), forCellReuseIdentifier: "HistoryTableCell")
         
         setupHomeUI()
-        historyPresenter.loadSearchHistory()
+        historyPresenter.loadSearchHistory() //show search history
     }
     
     private func setupHomeUI() {
@@ -94,6 +97,7 @@ class HomeViewController: UIViewController {
     }
     
     @objc func searchButtonTapped() {
+        //calls presenter search function and uses presenter which calls router to move to detail page
         guard let searchText = searchBar.text, !searchText.isEmpty else { return }
         let lowercasedText = searchText.lowercased()
         addToSearchHistory(lowercasedText)
@@ -105,6 +109,7 @@ class HomeViewController: UIViewController {
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
+        //moving search button up and down for visual asthetics
         guard let userInfo = notification.userInfo,
               let keyboardFrame = (userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue else { return }
         
@@ -148,6 +153,7 @@ extension HomeViewController: HomeViewControllerProtocol {
     func showWordDefinition(_ wordData: WordElement) {
         // Show word definition
     }
+    
     
     func showError(_ error: String) {
         let errorMessage = "Such a word may not exist or you can try again by checking your internet connection."

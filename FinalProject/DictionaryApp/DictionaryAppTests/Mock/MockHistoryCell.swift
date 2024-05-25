@@ -18,7 +18,7 @@ class MockHistoryTableCell: HistoryCellPresenterProtocol {
     
     func addRecentSearch(_ searchText: String) {
         if recentSearches.contains(searchText){
-            guard var existingIndx = recentSearches.firstIndex(of: searchText) else { return }
+            guard let existingIndx = recentSearches.firstIndex(of: searchText) else { return }
             recentSearches.remove(at: existingIndx)
         }
         recentSearches.insert(searchText, at: 0) //insert at the beginning

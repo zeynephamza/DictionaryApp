@@ -42,6 +42,7 @@ class DetailPresenter: DetailInteractorOutputProtocol {
 }
 
 extension DetailPresenter: DetailPresenterProtocol {
+    
     func didFetchWordDetail(_ wordElement: WordElement) {
         view?.displayWordDetails(wordElement)
     }

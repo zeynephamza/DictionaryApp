@@ -8,6 +8,7 @@
 import Foundation
 import DictionaryAPI
 
+
 protocol DetailInteractorProtocol: AnyObject {
     var presenter: DetailInteractorOutputProtocol? { get set }
     func fetchWordDetail(for word: String)
@@ -22,8 +23,8 @@ protocol DetailInteractorOutputProtocol: AnyObject {
 class DetailInteractor: DetailInteractorProtocol {
     weak var presenter: DetailInteractorOutputProtocol?
     let service: WordServiceProtocol = WordService()
-
     
+    //api fetch function
     func fetchWordDetail(for word: String) {
         service.fetchWordData(for: word) { [weak self] result in
             switch result {

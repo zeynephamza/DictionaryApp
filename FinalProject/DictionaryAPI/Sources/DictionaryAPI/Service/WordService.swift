@@ -10,7 +10,7 @@ public class WordService: WordServiceProtocol {
     public init() {}
     
     public func fetchWordData(for word: String, completion: @escaping (Result<WordElement, Error>) -> Void) {
-        print(word)
+        
         let url = "https://api.dictionaryapi.dev/api/v2/entries/en/\(word)"
         let url2 = "https://api.datamuse.com/words?rel_syn=\(word)"
         

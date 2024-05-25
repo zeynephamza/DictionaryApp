@@ -6,7 +6,6 @@ import AVFoundation
 protocol DetailViewControllerProtocol: AnyObject {
     func displayWordDetails(_ wordElement: WordElement)
     func displayError(_ error: String)
-    func showWordDetail(word: String)
 }
 
 class DetailViewController: UIViewController {
@@ -15,12 +14,14 @@ class DetailViewController: UIViewController {
     private var wordDetails: WordElement?
     private var selectedButtons = [UIButton]()
     var player: AVPlayer?
+    
+    
     private let wordLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 24)
         return label
     }()
-    
+
     private let phoneticLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 18)
@@ -42,6 +43,7 @@ class DetailViewController: UIViewController {
         stackView.spacing = 10
         return stackView
     }()
+    
     private let synonymOuterStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
@@ -50,6 +52,7 @@ class DetailViewController: UIViewController {
         stackView.spacing = 10 
         return stackView
     }()
+    
     private let synonymScrollView: UIScrollView = {
         let scrollView = UIScrollView()
         scrollView.showsHorizontalScrollIndicator = true
@@ -85,7 +88,6 @@ class DetailViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "person.wave.2"), for: .normal)
         button.tintColor = .gray
-        button.addTarget(self, action: #selector(audioButtonTapped), for: .touchUpInside)
         return button
     }()
     
@@ -93,6 +95,7 @@ class DetailViewController: UIViewController {
         super.viewDidLoad()
         view.backgroundColor = .white
         setupUI()
+        audioButton.addTarget(self, action: #selector(audioButtonTapped), for: .touchUpInside)
         presenter?.viewDidLoad()
     }
 
@@ -110,12 +113,8 @@ class DetailViewController: UIViewController {
     
     @objc private func dismissDetail() {
         dismiss(animated: true, completion: nil)
-        let homeVC = HomeRouter.createModule()
-        homeVC.modalPresentationStyle = .fullScreen
-        if let viewController = view as? UIViewController {
-            viewController.present(homeVC, animated: true, completion: nil)
-        }
     }
+    
     private func setupUI() {
         view.addSubview(wordLabel)
         view.addSubview(phoneticLabel)
@@ -183,14 +182,15 @@ class DetailViewController: UIViewController {
             synonymStackView.heightAnchor.constraint(equalTo: synonymScrollView.heightAnchor)
         ])
     }
+    
    
     @objc func audioButtonTapped() {
-        // phonetics dizisi boş mu diye kontrol et
+        //Phonetichs check if empty
             guard let phonetics = wordDetails?.phonetics else {
                 print("Phonetics array is empty!")
                 return
             }
-            // if there is phonetics
+        
             for phonetic in phonetics {
                 if let audioURLString = phonetic.audio,
                    let audioURL = URL(string: audioURLString) {
@@ -207,53 +207,45 @@ class DetailViewController: UIViewController {
     private func createPartOfSpeechButtons(for partsOfSpeech: [String]) {
         partOfSpeechStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
+        // Initial remove filter buton + other filter buton setup
         let clearButton = UIButton(type: .system)
+        clearButton.configuration = .plain()
+        clearButton.configuration?.titlePadding = 10
+        clearButton.configuration?.imagePadding = 10
         clearButton.setTitle("✕", for: .normal)
         clearButton.backgroundColor = .systemGray5
-        clearButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
-        //clearButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
         clearButton.layer.cornerRadius = 15
         clearButton.layer.masksToBounds = true
         clearButton.addTarget(self, action: #selector(clearFilterButtonTapped), for: .touchUpInside)
         partOfSpeechStackView.addArrangedSubview(clearButton)
         
+        // filter button setup for each definition type
         for part in partsOfSpeech {
             let button = UIButton(type: .system)
+            button.configuration = .plain()
+            button.configuration?.titlePadding = 10
+            button.configuration?.imagePadding = 10
             button.setTitle(part.capitalized, for: .normal)
             button.backgroundColor = .systemGray5
             button.layer.cornerRadius = 15
-            button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
-            //button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
-
             button.addTarget(self, action: #selector(partOfSpeechButtonTapped(_:)), for: .touchUpInside)
             partOfSpeechStackView.addArrangedSubview(button)
         }
     }
     
-    private func createCombinedPartOfSpeechButton(for partsOfSpeech: [String]) {
-
-        let combinedTitle = partsOfSpeech.joined(separator: ", ")
+    func commonButtonconfiguration(button: UIButton){
         
-        let combinedButton = UIButton(type: .system)
-        combinedButton.setTitle(combinedTitle, for: .normal)
-        combinedButton.backgroundColor = .systemGray5
-        combinedButton.layer.cornerRadius = 15
-        combinedButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
-        //combinedButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
-
-        combinedButton.addTarget(self, action: #selector(combinedPartOfSpeechButtonTapped), for: .touchUpInside)
-        
-        // Oluşturulan butonu stack view'e ekleyelim
-        partOfSpeechStackView.addArrangedSubview(combinedButton)
-         
     }
-
+    
+    
 
     @objc private func synonymButtonTapped(_ sender: UIButton) {
         presenter?.didTapOnSynonym(sender.currentTitle ?? "")
     }
 
     private func createCombinedPartOfSpeechButton() {
+        //this function is called when adding new filter type to combination
+        //combined buton setup
         let selectedTitles = selectedButtons.compactMap { $0.title(for: .normal) }
         let combinedTitle = selectedTitles.joined(separator: ", ")
 
@@ -263,13 +255,14 @@ class DetailViewController: UIViewController {
                 button.removeFromSuperview()
             }
         }
-
         if selectedTitles.count > 1 {
             let combinedButton = UIButton(type: .system)
+            combinedButton.configuration = .plain()
+            combinedButton.configuration?.titlePadding = 10
+            combinedButton.configuration?.imagePadding = 10
             combinedButton.setTitle(combinedTitle, for: .normal)
             combinedButton.backgroundColor = .systemGray5
             combinedButton.layer.cornerRadius = 15
-            combinedButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
             combinedButton.tag = 999
             combinedButton.addTarget(self, action: #selector(combinedPartOfSpeechButtonTapped), for: .touchUpInside)
 
@@ -278,7 +271,6 @@ class DetailViewController: UIViewController {
             } else {
                 partOfSpeechStackView.insertArrangedSubview(combinedButton, at: 0)
             }
-
             selectedButtons.forEach { $0.isHidden = true }
         } else {
             partOfSpeechStackView.arrangedSubviews.forEach {
@@ -291,7 +283,8 @@ class DetailViewController: UIViewController {
 
     @objc private func partOfSpeechButtonTapped(_ sender: UIButton) {
         guard let title = sender.title(for: .normal) else { return }
-
+        
+        //combined button caller function, this fucntion tracks selected filter types
         if selectedPartsOfSpeech.contains(title) {
             selectedPartsOfSpeech.remove(title)
             sender.layer.borderWidth = 0
@@ -304,14 +297,14 @@ class DetailViewController: UIViewController {
             sender.layer.borderColor = UIColor.systemBlue.cgColor
             selectedButtons.append(sender)
         }
-
         createCombinedPartOfSpeechButton()
-
         filterDefinitionsByPartOfSpeech()
     }
 
 
     private func filterDefinitionsByPartOfSpeech() {
+        
+        //filtering the definitions by type
         guard let word = wordDetails else { return }
 
         if selectedPartsOfSpeech.isEmpty {
@@ -321,18 +314,17 @@ class DetailViewController: UIViewController {
         let attributedText = NSMutableAttributedString()
         word.meanings?.forEach { meaning in
             guard let partOfSpeech = meaning.partOfSpeech?.capitalized, selectedPartsOfSpeech.contains(partOfSpeech) else { return }
-
+            
+            //displaying word definitions on meaningsTextView
             meaning.definitions?.enumerated().forEach { (index, definition) in
                 let partOfSpeechText = NSAttributedString(string: "\(index + 1). \(partOfSpeech)\n", attributes: [
                     .font: UIFont.italicSystemFont(ofSize: 16),
                     .foregroundColor: UIColor.systemBlue
                 ])
-
                 let definitionText = NSAttributedString(string: "\(definition.definition ?? "")\n\n", attributes: [
                     .font: UIFont.systemFont(ofSize: 16),
                     .foregroundColor: UIColor.darkGray
                 ])
-                
                 let exampleLabel = NSAttributedString(string: "Example\n", attributes: [
                     .font: UIFont.systemFont(ofSize: 15),
                     .foregroundColor: UIColor.darkGray
@@ -343,47 +335,16 @@ class DetailViewController: UIViewController {
                 ])
                 attributedText.append(partOfSpeechText)
                 attributedText.append(definitionText)
+                
                 if exampleText.length >= 3 {
                     attributedText.append(exampleLabel)
                     attributedText.append(exampleText)
                 }
             }
         }
-
         meaningsTextView.attributedText = attributedText
     }
-    private func updatePartOfSpeechButtons() {
-        // removed selected individual buttons
-        selectedButtons.forEach { $0.removeFromSuperview() }
-        
-        //combine the selected buttons
-        let combinedTitle = selectedPartsOfSpeech.joined(separator: ", ")
-        
-        
-        if let clearButton = partOfSpeechStackView.arrangedSubviews.first(where: { ($0 as? UIButton)?.title(for: .normal) == "✕" }) {
-            //Removes the combined button
-            if partOfSpeechStackView.arrangedSubviews.count > 1, let combinedButton = partOfSpeechStackView.arrangedSubviews[1] as? UIButton {
-                partOfSpeechStackView.removeArrangedSubview(combinedButton)
-                combinedButton.removeFromSuperview()
-            }
-
-            // Yeni birleşik butonu oluştur
-            let combinedButton = UIButton(type: .system)
-            combinedButton.setTitle(combinedTitle, for: .normal)
-            combinedButton.backgroundColor = .systemGray5
-            combinedButton.layer.cornerRadius = 15
-            combinedButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
-            //combinedButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
-
-            combinedButton.addTarget(self, action: #selector(combinedPartOfSpeechButtonTapped), for: .touchUpInside)
-            
-            // Clear butonunun yanına ekle
-            partOfSpeechStackView.insertArrangedSubview(combinedButton, at: 1)
-        }
-        
-        // Seçili butonları temizle
-        selectedButtons.removeAll()
-    }
+    
 
     @objc private func clearFilterButtonTapped() {
         selectedPartsOfSpeech.removeAll()
@@ -396,32 +357,31 @@ class DetailViewController: UIViewController {
     }
 
     private func recreatePartOfSpeechButtons() {
-        // Tüm mevcut butonları kaldır
         partOfSpeechStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
         
-        // Clear butonunu ekle
+        // Clear button setup
         let clearButton = UIButton(type: .system)
+        clearButton.configuration = .plain()
+        clearButton.configuration?.titlePadding = 10
+        clearButton.configuration?.imagePadding = 10
         clearButton.setTitle("✕", for: .normal)
         clearButton.backgroundColor = .systemGray5
-        clearButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
-        //clearButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
-
         clearButton.layer.cornerRadius = 15
         clearButton.layer.masksToBounds = true
         clearButton.addTarget(self, action: #selector(clearFilterButtonTapped), for: .touchUpInside)
         partOfSpeechStackView.addArrangedSubview(clearButton)
         
-        // Yeni partOfSpeech butonlarını ekle
+        // Set up filter buttons after clearing current filter
         if let meanings = wordDetails?.meanings {
             let partsOfSpeech = meanings.compactMap { $0.partOfSpeech?.capitalized }
             for part in partsOfSpeech {
                 let button = UIButton(type: .system)
+                button.configuration = .plain()
+                button.configuration?.titlePadding = 10
+                button.configuration?.imagePadding = 10
                 button.setTitle(part.capitalized, for: .normal)
                 button.backgroundColor = .systemGray5
                 button.layer.cornerRadius = 15
-                button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
-                //button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
-
                 button.addTarget(self, action: #selector(partOfSpeechButtonTapped(_:)), for: .touchUpInside)
                 partOfSpeechStackView.addArrangedSubview(button)
             }
@@ -430,7 +390,7 @@ class DetailViewController: UIViewController {
     @objc private func combinedPartOfSpeechButtonTapped() {
         guard !selectedButtons.isEmpty else { return }
         
-        // Son eklenen butonu çıkar
+        // Remove the last added button to filter combination
         let lastSelectedButton = selectedButtons.removeLast()
         if let title = lastSelectedButton.title(for: .normal) {
             selectedPartsOfSpeech.remove(title)
@@ -438,15 +398,13 @@ class DetailViewController: UIViewController {
         lastSelectedButton.layer.borderWidth = 0
         lastSelectedButton.isHidden = false
 
-        // Kalan seçili butonlar için birleştirilmiş butonu güncelle
         updateCombinedPartOfSpeechButton()
         
-        // Filtrelemeyi güncelle
         filterDefinitionsByPartOfSpeech()
     }
 
     private func updateCombinedPartOfSpeechButton() {
-        // Remove existing combined button if present
+        // Remove existing combined button, and create new one with remaining filters
         partOfSpeechStackView.arrangedSubviews.forEach {
             if let button = $0 as? UIButton, button.tag == 999 {
                 partOfSpeechStackView.removeArrangedSubview(button)
@@ -454,37 +412,38 @@ class DetailViewController: UIViewController {
             }
         }
 
-        // Kalan seçili butonlar
+        // current selected filters
         let selectedTitles = selectedButtons.compactMap { $0.title(for: .normal) }
 
-        // Eğer birden fazla seçili buton varsa, birleşik buton oluştur
+        // combine selected filters in to one button and hide single versions ofcombined filter
         if selectedTitles.count > 1 {
             let combinedTitle = selectedTitles.joined(separator: ", ")
             let combinedButton = UIButton(type: .system)
+            combinedButton.configuration = .plain()
+            combinedButton.configuration?.titlePadding = 10
+            combinedButton.configuration?.imagePadding = 10
             combinedButton.setTitle(combinedTitle, for: .normal)
             combinedButton.backgroundColor = .systemGray5
             combinedButton.layer.cornerRadius = 15
-            combinedButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
-            combinedButton.tag = 999  // Combine butonuna tag veriyoruz
+            combinedButton.tag = 999
             combinedButton.addTarget(self, action: #selector(combinedPartOfSpeechButtonTapped), for: .touchUpInside)
 
-            // Clear butonundan sonra ekle
+            //
             if let clearButton = partOfSpeechStackView.arrangedSubviews.first as? UIButton, clearButton.title(for: .normal) == "✕" {
                 partOfSpeechStackView.insertArrangedSubview(combinedButton, at: 1)
             } else {
                 partOfSpeechStackView.insertArrangedSubview(combinedButton, at: 0)
             }
 
-            // Orijinal seçili butonları gizle
             selectedButtons.forEach { $0.isHidden = true }
         } else {
-            // Eğer sadece bir tane seçili buton varsa, onu göster
             selectedButtons.forEach { $0.isHidden = false }
         }
     }
 
 
     private func displayFullDefinitions() {
+        // displaying all definitions without filter
         guard let word = wordDetails else { return }
 
         let attributedText = NSMutableAttributedString()
@@ -536,9 +495,6 @@ class DetailViewController: UIViewController {
                 button.setTitle(synonym, for: .normal)
                 button.backgroundColor = .systemGray5
                 button.layer.cornerRadius = 15
-                
-                //button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
-                //button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
 
                 button.addTarget(self, action: #selector(synonymButtonTapped(_:)), for: .touchUpInside)
                 synonymStackView.addArrangedSubview(button)
@@ -554,7 +510,7 @@ class DetailViewController: UIViewController {
 extension DetailViewController: DetailViewControllerProtocol {
     func displayError(_ error: String) {
         
-        //Creates an alarm to show user
+        //Creates an alarm to show user if word is not available
         let errorMessage = "Such a word may not exist or you can try again by checking your internet connection."
         let alertController = UIAlertController(title: "This word could not be found", message: errorMessage, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
@@ -575,8 +531,5 @@ extension DetailViewController: DetailViewControllerProtocol {
         }
         // Display all definitions initially
         displayFullDefinitions()
-    }
-    func showWordDetail(word: String) {
-        wordLabel.text = word
     }
 }

@@ -68,7 +68,7 @@ final class DictionaryAppTests: XCTestCase {
     }
     
     func test_fetchData(){
-        
+        // test fetchword which makes an api request, checks if the api result is expected word
         XCTAssertFalse(mockInteractor.fetchWordDataCalled)
         
         mockInteractor?.fetchWord(for: mockInteractor.myWordName) { [self] result in
@@ -86,42 +86,23 @@ final class DictionaryAppTests: XCTestCase {
     }
     
     func test_addRecentSearch(){
-
-        mockPresenter.recentSearches = ["a", "b", "c", "d"]
+        // Tests if recent search function works as intended,
+        mockPresenter.recentSearches = ["a", "b", "c", "d"] //initial recentsearch strings
         
-        mockPresenter.addRecentSearch("a")
+        mockPresenter.addRecentSearch("a") // adding a shouldnt change anything
         XCTAssertTrue(mockPresenter.recentSearches[0...3] == ["a", "b", "c", "d"])
 
-        mockPresenter.addRecentSearch("g")
+        mockPresenter.addRecentSearch("g") // adding g should move everything one index down and add g to to top
         XCTAssertTrue(mockPresenter.recentSearches[0...4] == ["g", "a", "b", "c", "d"])
         
-        mockPresenter.addRecentSearch("c")
+        mockPresenter.addRecentSearch("c") // adding c should move c to the first place since it already exists
         XCTAssertTrue(mockPresenter.recentSearches[0...4] == [ "c", "g", "a", "b", "d"])
 
-        mockPresenter.addRecentSearch("o")
+        mockPresenter.addRecentSearch("o") // adding o should remove d and add o to the top
         XCTAssertTrue(mockPresenter.recentSearches[0...4] == ["o", "c", "g", "a", "b"])
         
-        mockPresenter.addRecentSearch("x")
-        XCTAssertFalse(mockPresenter.recentSearches[0...4] == ["x","o", "c", "g", "a", "b"])
+        mockPresenter.addRecentSearch("x") // adding x shouldnt make the list longer since it is already 5 elements
+        XCTAssertFalse(mockPresenter.recentSearches.count == ["x","o", "c", "g", "a", "b"].count)
     }
 
 }
-
-/*
-final class HistoryCellPresenter: XCTestCase{
-    var presenter: HistoryCellPresenter!
-    var mockUserDefaults: MockUserDefaults!
-    
-    override func setUp() {
-        super.setUp()
-        mockUserDefaults = MockUserDefaults(suiteName: "TestDefaults")
-        presenter = HistoryCellPresenter(userDefaults: mockUserDefaults)
-    }
-    
-    override func tearDown() {
-       presenter = nil
-       mockUserDefaults = nil
-       super.tearDown()
-   }
-}
-*/

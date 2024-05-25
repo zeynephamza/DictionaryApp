@@ -23,10 +23,10 @@ final class HomeInteractor {
     var output: HomeInteractorOutputProtocol?
     weak var presenter: HomeInteractorOutputProtocol?
     let service: WordServiceProtocol = WordService()
-
 }
 
 extension HomeInteractor: HomeInteractorProtocol {
+    //fetching word data using api service
     func fetchWordData(for word: String) {
         service.fetchWordData(for: word){ [weak self] result in
             switch result {
@@ -40,11 +40,11 @@ extension HomeInteractor: HomeInteractorProtocol {
     }
     
     func fetchWord(for word: String, completion: @escaping (Result<WordElement, Error>) -> Void) {
-        // API çağrısı burada yapıldı ve sonucu completion ile döndürüldü
         
+        // API call is made here, which returns result using completion
         service.fetchWordData(for: word){ [weak self] result in
             switch result {
-            case .success(let wordElement):
+            case .success(_):
                 completion(result)
                 
             case .failure(let error):

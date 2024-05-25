@@ -9,21 +9,9 @@ import XCTest
 
 final class DictionaryAppUITests: XCTestCase {
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-
-        // In UI tests it is usually best to stop immediately when a failure occurs.
-        continueAfterFailure = false
-
-        // In UI tests it’s important to set the initial state - such as interface orientation - required for your tests before they run. The setUp method is a good place to do this.
-    }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
 
     func testSimpleSearchAndBack() throws {
-                // UI tests must launch the application that they test.
+        // tests the back button after searching a valid word
         let app = XCUIApplication()
         app.launch()
 
@@ -33,11 +21,10 @@ final class DictionaryAppUITests: XCTestCase {
         app/*@START_MENU_TOKEN@*/.staticTexts["Search"]/*[[".buttons.matching(identifier: \"Search\").staticTexts[\"Search\"]",".staticTexts[\"Search\"]"],[[[-1,1],[-1,0]]],[0]]@END_MENU_TOKEN@*/.tap()
         app.buttons["arrow.backward"].tap()
   
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
     
     func testTryToPlaySound() throws {
-                // UI tests must launch the application that they test.
+        // test for sound button for a valid word search
         let app = XCUIApplication()
         app.launch()
 
@@ -50,11 +37,10 @@ final class DictionaryAppUITests: XCTestCase {
         sleep(2)
         app.buttons["arrow.backward"].tap()
   
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
     
     func testGoToFirstSynonym() throws {
-                // UI tests must launch the application that they test.
+        // Go to first synonym for the word Car
         let app = XCUIApplication()
         app.launch()
 
@@ -66,7 +52,7 @@ final class DictionaryAppUITests: XCTestCase {
     }
  
     func testTypeInRandomWord() throws {
-                // UI tests must launch the application that they test.
+        // Enter a invalid word and search it. Check if error  appeared
         let app = XCUIApplication()
         
         app.launch()
@@ -76,12 +62,11 @@ final class DictionaryAppUITests: XCTestCase {
         app.typeText("randomwordtyped")
         app.buttons.containing(.staticText, identifier:"Search").element.tap()
         app.alerts["This word could not be found."].scrollViews.otherElements.buttons["OK"].tap()
-                
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        
     }
-
-    func testWordTypeButtons() throws {
-                // UI tests must launch the application that they test.
+    
+    func testWordFilterTypeButtons() throws {
+        // check if filter types are working for the word home
         let app = XCUIApplication()
         app.launch()
         
@@ -105,9 +90,6 @@ final class DictionaryAppUITests: XCTestCase {
         elementsQuery.buttons["✕"].tap()
         app.buttons["arrow.backward"].tap()
  
-        
-                
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
     }
     
     func testLaunchPerformance() throws {
