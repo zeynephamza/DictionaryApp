@@ -15,8 +15,12 @@ protocol DetailPresenterProtocol: AnyObject {
     var wordElement: WordElement { get set }
     
     func viewDidLoad()
+    func didFetchWordDetail(_ wordElement: WordElement)
+    func didFailToFetchWordDetail(with error: Error)
+    func didTapOnSynonym(_ synonym: String)
+    func didFetchSynonymDetail(_ wordElement: WordElement)
 }
-class DetailPresenter: DetailPresenterProtocol, DetailInteractorOutputProtocol {
+class DetailPresenter: DetailInteractorOutputProtocol {
     var wordElement: DictionaryAPI.WordElement
     
     weak var view: DetailViewControllerProtocol?
@@ -43,10 +47,11 @@ class DetailPresenter: DetailPresenterProtocol, DetailInteractorOutputProtocol {
         view?.displayWordDetails(wordElement)
             
     }
+    
 }
 
 
-extension DetailPresenter {
+extension DetailPresenter: DetailPresenterProtocol {
     func didFetchWordDetail(_ wordElement: WordElement) {
         view?.displayWordDetails(wordElement)
     }
@@ -54,16 +59,12 @@ extension DetailPresenter {
     func didFailToFetchWordDetail(with error: Error) {
         view?.displayError(error.localizedDescription)
     }
-}
-/*
-extension DetailPresenter: DetailInteractorOutputProtocol {
-    func didFetchWordDetail(_ wordElement: WordElement) {
-        print("DetailPresenter: didFetchWordDetail")
-        view?.displayWordDetails(wordElement)
+    
+    func didTapOnSynonym(_ synonym: String) {
+        interactor?.fetchWordDetail(for: synonym)
     }
     
-    func didFailToFetchWordDetail(with error: Error) {
-        print("DetailPresenter: didFailToFetchWordDetail")
-        view?.displayError(error.localizedDescription)
+    func didFetchSynonymDetail(_ wordElement: WordElement) {
+        router?.navigateToDetail(from: view!, with: wordElement.word ?? "", wordElement: wordElement)
     }
-}*/
+}

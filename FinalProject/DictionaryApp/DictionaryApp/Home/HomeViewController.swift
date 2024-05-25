@@ -149,7 +149,10 @@ extension HomeViewController: HomeViewControllerProtocol {
     }
     
     func showError(_ error: String) {
-        // Show error message
+        let errorMessage = "Such a word may not exist or you can try again by checking your internet connection."
+        let alertController = UIAlertController(title: "This word could not be fetched", message: errorMessage, preferredStyle: .alert)
+        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(alertController, animated: true, completion: nil)
     }
 }
 

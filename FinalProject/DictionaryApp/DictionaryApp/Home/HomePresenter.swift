@@ -31,16 +31,17 @@ class HomePresenter: HomePresenterProtocol, HomeInteractorOutputProtocol {
         self.interactor = interactor
         self.router = router
     }
+    
     func searchWord(_ word: String, completion: @escaping (WordElement) -> Void) {
-            interactor?.fetchWord(for: word) { result in
-                switch result {
-                case .success(let wordElement):
-                    completion(wordElement)
-                case .failure(let error):
-                    self.view?.showError(error.localizedDescription)
-                }
+        interactor?.fetchWord(for: word) { result in
+            switch result {
+            case .success(let wordElement):
+                completion(wordElement)
+            case .failure(let error):
+                self.view?.showError(error.localizedDescription)
             }
         }
+    }
 
     func searchWord(_ word: String) {
         interactor?.fetchWordData(for: word)

@@ -8,7 +8,7 @@
 import Foundation
 
 //MARK: - Define
-public let SYN_NUM = 5  //synonym number
+public let MAX_NUM = 5  //synonym number
 
 public typealias Word = [WordElement]
 
@@ -17,7 +17,7 @@ public struct WordElement: Decodable {
     public let word, phonetic: String?
     public let phonetics: [Phonetic]?
     public let meanings: [Meaning]?
-    public let synonyms: [Synonym]?
+    public var synonyms_api: [String]?
 }
 
 // MARK: - Meaning
@@ -30,13 +30,6 @@ public struct Meaning: Decodable {
 public struct Definition: Decodable {
     public let definition: String?
     public let example: String?
-}
-
-// MARK: - Synonym
-public struct Synonym: Decodable {
-    public let name: String?
-    public let score: Int?
-    
 }
 
 // MARK: - Phonetic

@@ -34,8 +34,6 @@ class HomeRouter: HomeRouterProtocol {
         let detailVC = DetailRouter.createModule(with: word, wordElement: wordElement)
         detailVC.modalPresentationStyle = .fullScreen
         if let viewController = view as? UIViewController {
-            //viewController.navigationController?.pushViewController(detailVC, animated: true)
-            //viewController.presentationController?.shouldPresentInFullscreen
             viewController.present(detailVC, animated: true, completion: nil)
         }
     }

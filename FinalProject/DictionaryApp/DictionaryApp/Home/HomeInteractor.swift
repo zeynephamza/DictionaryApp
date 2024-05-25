@@ -39,10 +39,19 @@ extension HomeInteractor: HomeInteractorProtocol {
         }
     }
     
+    
     func fetchWord(for word: String, completion: @escaping (Result<WordElement, Error>) -> Void) {
-            // API çağrısını burada yapıldı ve sonucu completion ile döndürüldü
-            service.fetchWordData(for: word) { result in
+        // API çağrısı burada yapıldı ve sonucu completion ile döndürüldü
+        
+        service.fetchWordData(for: word){ [weak self] result in
+            switch result {
+            case .success(let wordElement):
                 completion(result)
+                
+            case .failure(let error):
+                self?.presenter?.didFailToFetchWordData(with: error)
+            
             }
         }
+    }
 }

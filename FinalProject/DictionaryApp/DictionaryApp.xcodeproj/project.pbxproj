@@ -138,7 +138,6 @@
 			isa = PBXGroup;
 			children = (
 				5C8B24F52BFA9C58001C7529 /* Detail */,
-				5CB532322BFA14C9004D399E /* Cell */,
 				5C91CF282BF90EF2001F5AD5 /* Home */,
 				5C91CEEF2BF7F3BE001F5AD5 /* AppDelegate.swift */,
 				5C91CEF12BF7F3BE001F5AD5 /* SceneDelegate.swift */,
@@ -178,6 +177,7 @@
 		5C91CF282BF90EF2001F5AD5 /* Home */ = {
 			isa = PBXGroup;
 			children = (
+				5CB532322BFA14C9004D399E /* Cell */,
 				5C91CEF32BF7F3BE001F5AD5 /* HomeViewController.swift */,
 				5C91CF292BF90F17001F5AD5 /* HomeInteractor.swift */,
 				5C91CF2B2BF91152001F5AD5 /* HomePresenter.swift */,
