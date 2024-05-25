@@ -8,65 +8,27 @@ import XCTest
 @testable import DictionaryApp
 @testable import DictionaryAPI
 
-// Mock Classes
-class MockViewController: HomeViewControllerProtocol {
-    var showWordDefinitionCalled = false
-    var showErrorCalled = false
-    var errorMessage: String?
-    
-    func showWordDefinition(_ word: WordElement) {
-        showWordDefinitionCalled = true
-    }
-    
-    func showError(_ message: String) {
-        showErrorCalled = true
-        errorMessage = message
-    }
-}
 
-class MockInteractor: HomeInteractorProtocol {
-    var presenter: (any DictionaryApp.HomeInteractorOutputProtocol)?
+// Home Presenter Tests
+final class DictionaryAppTests: XCTestCase {
     
-    var fetchWordDataCalled = false
-    var fetchWordCalled = false
-    var fetchWordCompletion: ((Result<WordElement, Error>) -> Void)?
-    
-    func fetchWordData(for word: String) {
-        fetchWordDataCalled = true
-    }
-    
-    func fetchWord(for word: String, completion: @escaping (Result<WordElement, Error>) -> Void) {
-        fetchWordCalled = true
-        fetchWordCompletion = completion
-    }
-}
-
-class MockRouter: HomeRouterProtocol {
-    var navigateToDetailCalled = false
-    var word: String?
-    var wordElement: WordElement?
-    
-    func navigateToDetail(from view: HomeViewControllerProtocol, with word: String, wordElement: WordElement) {
-        navigateToDetailCalled = true
-        self.word = word
-        self.wordElement = wordElement
-    }
-}
-
-class HomePresenterTests: XCTestCase {
+    //All variables are forced!
     var presenter: HomePresenter!
     var mockView: MockViewController!
-    var mockInteractor: MockInteractor!
+    var mockInteractor: MockHomeInteractor!
     var mockRouter: MockRouter!
+    var mockPresenter: MockHistoryTableCell!
+    
 
     override func setUp() {
         super.setUp()
         
-        //inits
+        //initialization
         mockView = MockViewController()
-        mockInteractor = MockInteractor()
+        mockInteractor = MockHomeInteractor()
         mockRouter = MockRouter()
         presenter = HomePresenter(view: mockView, interactor: mockInteractor, router: mockRouter)
+        mockPresenter = MockHistoryTableCell()
     }
 
     override func tearDown() {
@@ -74,14 +36,11 @@ class HomePresenterTests: XCTestCase {
         mockView = nil
         mockInteractor = nil
         mockRouter = nil
+        mockPresenter = nil
+        
         super.tearDown()
     }
 
-    func test_viewWillAppear_InvokesRequiredViewMethod(){
-        XCTAssertFalse(mockInteractor.fetchWordCalled, "Passed")
-        
-        
-    }
     
     func test_searchWordCallsInteractor() {
         presenter.searchWord("test")
@@ -108,5 +67,61 @@ class HomePresenterTests: XCTestCase {
         waitForExpectations(timeout: 1, handler: nil)
     }
     
+    func test_fetchData(){
+        
+        XCTAssertFalse(mockInteractor.fetchWordDataCalled)
+        
+        mockInteractor?.fetchWord(for: mockInteractor.myWordName) { [self] result in
+            switch result {
+            case .success(let wordElement):
+                XCTAssertEqual(wordElement.word, mockInteractor.myWordName)
+                XCTAssertTrue(mockInteractor.fetchWordDataCalled)
+                
+            case .failure(_ ):
+                XCTAssertEqual(self.mockInteractor.testErrorMessage, "My Test Succesfully Failed")
+            }
+        }
+       
+        
+    }
+    
+    func test_addRecentSearch(){
+
+        mockPresenter.recentSearches = ["a", "b", "c", "d"]
+        
+        mockPresenter.addRecentSearch("a")
+        XCTAssertTrue(mockPresenter.recentSearches[0...3] == ["a", "b", "c", "d"])
+
+        mockPresenter.addRecentSearch("g")
+        XCTAssertTrue(mockPresenter.recentSearches[0...4] == ["g", "a", "b", "c", "d"])
+        
+        mockPresenter.addRecentSearch("c")
+        XCTAssertTrue(mockPresenter.recentSearches[0...4] == [ "c", "g", "a", "b", "d"])
+
+        mockPresenter.addRecentSearch("o")
+        XCTAssertTrue(mockPresenter.recentSearches[0...4] == ["o", "c", "g", "a", "b"])
+        
+        mockPresenter.addRecentSearch("x")
+        XCTAssertFalse(mockPresenter.recentSearches[0...4] == ["x","o", "c", "g", "a", "b"])
+    }
 
 }
+
+/*
+final class HistoryCellPresenter: XCTestCase{
+    var presenter: HistoryCellPresenter!
+    var mockUserDefaults: MockUserDefaults!
+    
+    override func setUp() {
+        super.setUp()
+        mockUserDefaults = MockUserDefaults(suiteName: "TestDefaults")
+        presenter = HistoryCellPresenter(userDefaults: mockUserDefaults)
+    }
+    
+    override func tearDown() {
+       presenter = nil
+       mockUserDefaults = nil
+       super.tearDown()
+   }
+}
+*/

@@ -7,6 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5C73CFD82C01F10A0023859E /* MockHomeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C73CFD72C01F10A0023859E /* MockHomeInteractor.swift */; };
+		5C73CFDA2C01F2350023859E /* MockHomeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C73CFD92C01F2350023859E /* MockHomeViewController.swift */; };
+		5C73CFDC2C01F7150023859E /* MockHomeRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C73CFDB2C01F7150023859E /* MockHomeRouter.swift */; };
+		5C73CFDF2C02021F0023859E /* MockHomePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C73CFDE2C02021F0023859E /* MockHomePresenter.swift */; };
+		5C73CFE12C0209ED0023859E /* MockHistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C73CFE02C0209ED0023859E /* MockHistoryCell.swift */; };
 		5C8B24F72BFA9C72001C7529 /* DetailRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8B24F62BFA9C72001C7529 /* DetailRouter.swift */; };
 		5C8B24F92BFA9CD6001C7529 /* DetailPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8B24F82BFA9CD6001C7529 /* DetailPresenter.swift */; };
 		5C8B24FB2BFA9CEA001C7529 /* DetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C8B24FA2BFA9CEA001C7529 /* DetailViewController.swift */; };
@@ -49,6 +54,11 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		5C73CFD72C01F10A0023859E /* MockHomeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockHomeInteractor.swift; sourceTree = "<group>"; };
+		5C73CFD92C01F2350023859E /* MockHomeViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockHomeViewController.swift; sourceTree = "<group>"; };
+		5C73CFDB2C01F7150023859E /* MockHomeRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockHomeRouter.swift; sourceTree = "<group>"; };
+		5C73CFDE2C02021F0023859E /* MockHomePresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockHomePresenter.swift; sourceTree = "<group>"; };
+		5C73CFE02C0209ED0023859E /* MockHistoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockHistoryCell.swift; sourceTree = "<group>"; };
 		5C8B24F62BFA9C72001C7529 /* DetailRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailRouter.swift; sourceTree = "<group>"; };
 		5C8B24F82BFA9CD6001C7529 /* DetailPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailPresenter.swift; sourceTree = "<group>"; };
 		5C8B24FA2BFA9CEA001C7529 /* DetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DetailViewController.swift; sourceTree = "<group>"; };
@@ -102,6 +112,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		5C73CFDD2C01FFFD0023859E /* Mock */ = {
+			isa = PBXGroup;
+			children = (
+				5C73CFD72C01F10A0023859E /* MockHomeInteractor.swift */,
+				5C73CFD92C01F2350023859E /* MockHomeViewController.swift */,
+				5C73CFDB2C01F7150023859E /* MockHomeRouter.swift */,
+				5C73CFDE2C02021F0023859E /* MockHomePresenter.swift */,
+				5C73CFE02C0209ED0023859E /* MockHistoryCell.swift */,
+			);
+			path = Mock;
+			sourceTree = "<group>";
+		};
 		5C8B24F52BFA9C58001C7529 /* Detail */ = {
 			isa = PBXGroup;
 			children = (
@@ -153,6 +175,7 @@
 		5C91CF082BF7F3BF001F5AD5 /* DictionaryAppTests */ = {
 			isa = PBXGroup;
 			children = (
+				5C73CFDD2C01FFFD0023859E /* Mock */,
 				5C91CF092BF7F3BF001F5AD5 /* DictionaryAppTests.swift */,
 			);
 			path = DictionaryAppTests;
@@ -355,7 +378,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5C73CFDA2C01F2350023859E /* MockHomeViewController.swift in Sources */,
 				5C91CF0A2BF7F3BF001F5AD5 /* DictionaryAppTests.swift in Sources */,
+				5C73CFE12C0209ED0023859E /* MockHistoryCell.swift in Sources */,
+				5C73CFDF2C02021F0023859E /* MockHomePresenter.swift in Sources */,
+				5C73CFD82C01F10A0023859E /* MockHomeInteractor.swift in Sources */,
+				5C73CFDC2C01F7150023859E /* MockHomeRouter.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

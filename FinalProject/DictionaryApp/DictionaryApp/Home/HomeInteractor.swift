@@ -39,7 +39,6 @@ extension HomeInteractor: HomeInteractorProtocol {
         }
     }
     
-    
     func fetchWord(for word: String, completion: @escaping (Result<WordElement, Error>) -> Void) {
         // API çağrısı burada yapıldı ve sonucu completion ile döndürüldü
         
