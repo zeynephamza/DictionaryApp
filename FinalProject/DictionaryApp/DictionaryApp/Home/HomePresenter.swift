@@ -17,9 +17,10 @@ protocol HomePresenterProtocol: AnyObject {
     func navigateToDetail(with word: String, wordElement: WordElement)
     func searchWord(_ word: String, completion: @escaping (WordElement) -> Void)
     
+    
 }
 
-class HomePresenter: HomePresenterProtocol, HomeInteractorOutputProtocol {
+class HomePresenter: HomeInteractorOutputProtocol {
     
     weak var view: HomeViewControllerProtocol?
     var interactor: HomeInteractorProtocol?
@@ -42,10 +43,13 @@ class HomePresenter: HomePresenterProtocol, HomeInteractorOutputProtocol {
         }
     }
 
+}
+
+extension HomePresenter: HomePresenterProtocol {
+    
     func searchWord(_ word: String) {
         interactor?.fetchWordData(for: word)
     }
-    
 
     func didFetchWordData(_ wordData: WordElement) {
         view?.showWordDefinition(wordData)

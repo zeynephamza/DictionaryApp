@@ -14,7 +14,7 @@ class DetailViewController: UIViewController {
     private var selectedPartsOfSpeech = Set<String>()
     private var wordDetails: WordElement?
     private var selectedButtons = [UIButton]()
-
+    var player: AVPlayer?
     private let wordLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 24)
@@ -183,20 +183,13 @@ class DetailViewController: UIViewController {
             synonymStackView.heightAnchor.constraint(equalTo: synonymScrollView.heightAnchor)
         ])
     }
-    var player: AVPlayer?
-    
-    
-    
-    
-    
-    
+   
     @objc func audioButtonTapped() {
         // phonetics dizisi boş mu diye kontrol et
             guard let phonetics = wordDetails?.phonetics else {
                 print("Phonetics array is empty!")
                 return
             }
-            
             // if there is phonetics
             for phonetic in phonetics {
                 if let audioURLString = phonetic.audio,
@@ -208,11 +201,8 @@ class DetailViewController: UIViewController {
                     return
                 }
             }
-            
             print("No audio URL found!")
-        
     }
-    
     
     private func createPartOfSpeechButtons(for partsOfSpeech: [String]) {
         partOfSpeechStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
@@ -221,6 +211,7 @@ class DetailViewController: UIViewController {
         clearButton.setTitle("✕", for: .normal)
         clearButton.backgroundColor = .systemGray5
         clearButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+        //clearButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
         clearButton.layer.cornerRadius = 15
         clearButton.layer.masksToBounds = true
         clearButton.addTarget(self, action: #selector(clearFilterButtonTapped), for: .touchUpInside)
@@ -232,27 +223,24 @@ class DetailViewController: UIViewController {
             button.backgroundColor = .systemGray5
             button.layer.cornerRadius = 15
             button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+            //button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
+
             button.addTarget(self, action: #selector(partOfSpeechButtonTapped(_:)), for: .touchUpInside)
             partOfSpeechStackView.addArrangedSubview(button)
         }
     }
     
-    
-    
-    
     private func createCombinedPartOfSpeechButton(for partsOfSpeech: [String]) {
-        // Öncelikle, önceki partOfSpeech butonlarını temizleyelim
-        //partOfSpeechStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        
-        // Birden fazla seçilen kategorinin adını birleştirelim
+
         let combinedTitle = partsOfSpeech.joined(separator: ", ")
         
-        // Yeni bir buton oluşturalım ve birleştirilmiş adı atayalım
         let combinedButton = UIButton(type: .system)
         combinedButton.setTitle(combinedTitle, for: .normal)
         combinedButton.backgroundColor = .systemGray5
         combinedButton.layer.cornerRadius = 15
         combinedButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+        //combinedButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
+
         combinedButton.addTarget(self, action: #selector(combinedPartOfSpeechButtonTapped), for: .touchUpInside)
         
         // Oluşturulan butonu stack view'e ekleyelim
@@ -266,8 +254,6 @@ class DetailViewController: UIViewController {
         //dismiss(animated: true, completion: nil)
     }
 
-    
-    
     private func createCombinedPartOfSpeechButton() {
         let selectedTitles = selectedButtons.compactMap { $0.title(for: .normal) }
         let combinedTitle = selectedTitles.joined(separator: ", ")
@@ -287,6 +273,7 @@ class DetailViewController: UIViewController {
             combinedButton.backgroundColor = .systemGray5
             combinedButton.layer.cornerRadius = 15
             combinedButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+            //combinedButton.configuration!.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
             combinedButton.tag = 999  // Assign a tag to identify the combined button
             combinedButton.addTarget(self, action: #selector(combinedPartOfSpeechButtonTapped), for: .touchUpInside)
 
@@ -324,7 +311,6 @@ class DetailViewController: UIViewController {
             sender.layer.borderColor = UIColor.systemBlue.cgColor
             selectedButtons.append(sender)
         }
-
         // Create or update the combined button
         createCombinedPartOfSpeechButton()
 
@@ -339,9 +325,7 @@ class DetailViewController: UIViewController {
             displayFullDefinitions()
             return
         }
-
         let attributedText = NSMutableAttributedString()
-
         word.meanings?.forEach { meaning in
             guard let partOfSpeech = meaning.partOfSpeech?.capitalized, selectedPartsOfSpeech.contains(partOfSpeech) else { return }
 
@@ -355,24 +339,36 @@ class DetailViewController: UIViewController {
                     .font: UIFont.systemFont(ofSize: 16),
                     .foregroundColor: UIColor.darkGray
                 ])
-
+                
+                let exampleLabel = NSAttributedString(string: "Example\n", attributes: [
+                    .font: UIFont.systemFont(ofSize: 15),
+                    .foregroundColor: UIColor.darkGray
+                ])
+                let exampleText = NSAttributedString(string: "\(definition.example ?? "")\n\n", attributes: [
+                    .font: UIFont.italicSystemFont(ofSize: 15),
+                    .foregroundColor: UIColor.systemGray
+                ])
                 attributedText.append(partOfSpeechText)
                 attributedText.append(definitionText)
+                if exampleText.length >= 3 {
+                    attributedText.append(exampleLabel)
+                    attributedText.append(exampleText)
+                }
             }
         }
 
         meaningsTextView.attributedText = attributedText
     }
     private func updatePartOfSpeechButtons() {
-        // Seçili butonları kaldır
+        // removed selected individual buttons
         selectedButtons.forEach { $0.removeFromSuperview() }
         
-        // Seçilen başlıkları birleştir
+        //combine the selected buttons
         let combinedTitle = selectedPartsOfSpeech.joined(separator: ", ")
         
-        // Clear butonunu bul ve kontrol et
+        
         if let clearButton = partOfSpeechStackView.arrangedSubviews.first(where: { ($0 as? UIButton)?.title(for: .normal) == "✕" }) {
-            // Mevcut birleşik buton varsa kaldır
+            //Removes the combined button
             if partOfSpeechStackView.arrangedSubviews.count > 1, let combinedButton = partOfSpeechStackView.arrangedSubviews[1] as? UIButton {
                 partOfSpeechStackView.removeArrangedSubview(combinedButton)
                 combinedButton.removeFromSuperview()
@@ -384,6 +380,8 @@ class DetailViewController: UIViewController {
             combinedButton.backgroundColor = .systemGray5
             combinedButton.layer.cornerRadius = 15
             combinedButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+            //combinedButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
+
             combinedButton.addTarget(self, action: #selector(combinedPartOfSpeechButtonTapped), for: .touchUpInside)
             
             // Clear butonunun yanına ekle
@@ -413,6 +411,8 @@ class DetailViewController: UIViewController {
         clearButton.setTitle("✕", for: .normal)
         clearButton.backgroundColor = .systemGray5
         clearButton.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+        //clearButton.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
+
         clearButton.layer.cornerRadius = 15
         clearButton.layer.masksToBounds = true
         clearButton.addTarget(self, action: #selector(clearFilterButtonTapped), for: .touchUpInside)
@@ -427,6 +427,8 @@ class DetailViewController: UIViewController {
                 button.backgroundColor = .systemGray5
                 button.layer.cornerRadius = 15
                 button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+                //button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
+
                 button.addTarget(self, action: #selector(partOfSpeechButtonTapped(_:)), for: .touchUpInside)
                 partOfSpeechStackView.addArrangedSubview(button)
             }
@@ -438,7 +440,6 @@ class DetailViewController: UIViewController {
         selectedButtons.forEach { $0.layer.borderWidth = 0 }
         selectedButtons.removeAll()
         displayFullDefinitions()
-        
         // Butonları yeniden oluştur
         recreatePartOfSpeechButtons()
     }
@@ -456,17 +457,26 @@ class DetailViewController: UIViewController {
                     .font: UIFont.italicSystemFont(ofSize: 16),
                     .foregroundColor: UIColor.systemBlue
                 ])
-
                 let definitionText = NSAttributedString(string: "\(definition.definition ?? "")\n\n", attributes: [
                     .font: UIFont.systemFont(ofSize: 16),
                     .foregroundColor: UIColor.darkGray
                 ])
-
+                let exampleLabel = NSAttributedString(string: "Example\n", attributes: [
+                    .font: UIFont.systemFont(ofSize: 15),
+                    .foregroundColor: UIColor.darkGray
+                ])
+                let exampleText = NSAttributedString(string: "\(definition.example ?? "")\n\n", attributes: [
+                    .font: UIFont.italicSystemFont(ofSize: 15),
+                    .foregroundColor: UIColor.systemGray
+                ])
                 attributedText.append(partOfSpeechText)
                 attributedText.append(definitionText)
+                if exampleText.length >= 3 {
+                    attributedText.append(exampleLabel)
+                    attributedText.append(exampleText)
+                }
             }
         }
-
         meaningsTextView.attributedText = attributedText
 
         if let synonyms = word.synonyms_api, !synonyms.isEmpty {
@@ -481,6 +491,8 @@ class DetailViewController: UIViewController {
                 button.backgroundColor = .systemGray5
                 button.layer.cornerRadius = 15
                 button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
+                //button.configuration?.contentInsets = NSDirectionalEdgeInsets(top: 8, leading: 20, bottom: 8,trailing: 20)
+
                 button.addTarget(self, action: #selector(synonymButtonTapped(_:)), for: .touchUpInside)
                 synonymStackView.addArrangedSubview(button)
             }
@@ -489,8 +501,6 @@ class DetailViewController: UIViewController {
             synonymScrollView.isHidden = true
         }
     }
-
-    
 
 }
 
@@ -508,9 +518,6 @@ extension DetailViewController: DetailViewControllerProtocol {
         wordLabel.text = word.word?.capitalized
         phoneticLabel.text = word.phonetic
         
-        // Clear existing partOfSpeech buttons
-        //partOfSpeechStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        
         // Store the word details for later use
         wordDetails = word
 
@@ -518,13 +525,10 @@ extension DetailViewController: DetailViewControllerProtocol {
         if let meanings = word.meanings {
             let partsOfSpeech = meanings.compactMap { $0.partOfSpeech?.capitalized }
             createPartOfSpeechButtons(for: partsOfSpeech)
-            
         }
-        
         // Display all definitions initially
         displayFullDefinitions()
     }
-
     func showWordDetail(word: String) {
         wordLabel.text = word
     }
