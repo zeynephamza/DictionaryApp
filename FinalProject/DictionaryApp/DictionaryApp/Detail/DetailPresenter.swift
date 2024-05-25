@@ -21,7 +21,7 @@ protocol DetailPresenterProtocol: AnyObject {
     func didFetchSynonymDetail(_ wordElement: WordElement)
 }
 class DetailPresenter: DetailInteractorOutputProtocol {
-    var wordElement: DictionaryAPI.WordElement
+    var wordElement: WordElement
     
     weak var view: DetailViewControllerProtocol?
     var interactor: DetailInteractorProtocol?
@@ -37,19 +37,9 @@ class DetailPresenter: DetailInteractorOutputProtocol {
     }
 
     func viewDidLoad() {
-        /*
-        if let wordElement = wordElement {
-            view?.displayWordDetails(wordElement)
-        } else {
-            interactor?.fetchWordDetail(for: word)
-        }
-         */
         view?.displayWordDetails(wordElement)
-            
     }
-    
 }
-
 
 extension DetailPresenter: DetailPresenterProtocol {
     func didFetchWordDetail(_ wordElement: WordElement) {

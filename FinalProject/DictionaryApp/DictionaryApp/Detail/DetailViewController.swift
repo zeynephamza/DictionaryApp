@@ -94,13 +94,7 @@ class DetailViewController: UIViewController {
         view.backgroundColor = .white
         setupUI()
         presenter?.viewDidLoad()
-        
-        print("wordLabel görünürlüğü: \(wordLabel.isHidden)")
-            print("audioButton görünürlüğü: \(audioButton.isHidden)")
-            print("wordLabel frame: \(wordLabel.frame)")
-            print("audioButton frame: \(audioButton.frame)")
     }
-    
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
@@ -192,21 +186,25 @@ class DetailViewController: UIViewController {
     var player: AVPlayer?
     
     @objc func audioButtonTapped() {
-        guard let audioURLString = wordDetails?.phonetics?[0].audio,
-              let audioURL = URL(string: audioURLString) else {
-            print("Audio URL not found!")
-            return
-        }
-        
-        guard let playerItem = try? AVPlayerItem(url: audioURL) else {
-            print("Error creating player item")
-            return
-        }
-        
-        player = AVPlayer(playerItem: playerItem)
-        
-        player?.volume = 1.0 // Max sound level
-        player?.play()
+        // phonetics dizisi boş mu diye kontrol et
+            guard let phonetics = wordDetails?.phonetics else {
+                print("Phonetics array is empty!")
+                return
+            }
+            
+            // if there is phonetics
+            for phonetic in phonetics {
+                if let audioURLString = phonetic.audio,
+                   let audioURL = URL(string: audioURLString) {
+                    let playerItem = AVPlayerItem(url: audioURL)
+                    player = AVPlayer(playerItem: playerItem)
+                    player?.volume = 1.0 // Max sound level
+                    player?.play()
+                    return
+                }
+            }
+            
+            print("No audio URL found!")
         
     }
        
@@ -344,9 +342,6 @@ class DetailViewController: UIViewController {
         meaningsTextView.attributedText = attributedText
     }
 
-    func showError(_ error: String) {
-        wordLabel.text = "Error: \(error)"
-    }
 }
 
 extension DetailViewController: DetailViewControllerProtocol {
@@ -354,13 +349,12 @@ extension DetailViewController: DetailViewControllerProtocol {
         
         //Creates an alarm to show user
         let errorMessage = "Such a word may not exist or you can try again by checking your internet connection."
-        let alertController = UIAlertController(title: "This word could not be fetched", message: errorMessage, preferredStyle: .alert)
+        let alertController = UIAlertController(title: "This word could not be found", message: errorMessage, preferredStyle: .alert)
         alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
         self.present(alertController, animated: true, completion: nil)
     }
     
     func displayWordDetails(_ word: WordElement) {
-        print("DetailViewController: displayWordDetails")
         wordLabel.text = word.word?.capitalized
         phoneticLabel.text = word.phonetic
         

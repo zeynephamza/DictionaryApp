@@ -121,7 +121,8 @@ class HomeViewController: UIViewController {
     
     @objc func keyboardWillHide(notification: NSNotification) {
         guard let searchButtonBottomConstraintWithKeyboard = searchButtonBottomConstraintWithKeyboard else {
-            // If searchButtonBottomConstraintWithKeyboard is nil, return early to avoid the fatal error
+            
+            // If it is nil, return early to avoid the fatal error
             return
         }
 

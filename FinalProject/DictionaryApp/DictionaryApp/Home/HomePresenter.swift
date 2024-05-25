@@ -19,7 +19,6 @@ protocol HomePresenterProtocol: AnyObject {
     
 }
 
-
 class HomePresenter: HomePresenterProtocol, HomeInteractorOutputProtocol {
     
     weak var view: HomeViewControllerProtocol?
